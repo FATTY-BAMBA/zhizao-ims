@@ -200,26 +200,26 @@ body::before {
   padding: 1rem 1.25rem; border-bottom: 1px solid var(--b1);
   background: var(--s2);
 }
-.rc-icon { font-size: 18px; }
-.rc-title { font-size: 13px; font-weight: 500; flex: 1; }
+.rc-icon { font-size: 22px; }
+.rc-title { font-size: 16px; font-weight: 500; flex: 1; }
 .rc-badge {
-  font-size: 10px; font-family: var(--mono); padding: 3px 10px;
+  font-size: 12px; font-family: var(--mono); padding: 4px 12px;
   border-radius: 999px;
 }
 .badge-done { background: rgba(74,222,128,0.1); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
 .badge-live { background: rgba(251,191,36,0.1); color: var(--amber); border: 1px solid rgba(251,191,36,0.25); }
-.rc-body { padding: 1.25rem; }
+.rc-body { padding: 1.5rem; }
 
 /* ── DATA GRID ── */
-.data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.data-cell { background: var(--s2); border: 1px solid var(--b1); border-radius: 10px; padding: 10px 12px; }
+.data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.data-cell { background: var(--s2); border: 1px solid var(--b1); border-radius: 10px; padding: 14px 16px; }
 .data-cell.full { grid-column: span 2; }
-.dc-label { font-size: 10px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 5px; }
-.dc-val { font-size: 13px; font-weight: 500; }
-.dc-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.dc-label { font-size: 12px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+.dc-val { font-size: 16px; font-weight: 500; }
+.dc-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
 
 .tag-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.tag { font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 500; }
+.tag { font-size: 13px; padding: 5px 14px; border-radius: 6px; font-weight: 500; }
 .tag-blue { background: rgba(91,156,246,0.12); color: #93c5fd; border: 1px solid rgba(91,156,246,0.25); }
 .tag-violet { background: rgba(167,139,250,0.12); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.25); }
 .tag-teal { background: rgba(45,212,191,0.1); color: #5eead4; border: 1px solid rgba(45,212,191,0.2); }
@@ -228,35 +228,35 @@ body::before {
 .conf-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
 .conf-track { flex: 1; height: 4px; background: var(--b1); border-radius: 2px; }
 .conf-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--teal), var(--green)); transition: width 1.2s ease; }
-.conf-label { font-size: 11px; font-family: var(--mono); color: var(--green); min-width: 36px; text-align: right; }
+.conf-label { font-size: 14px; font-family: var(--mono); color: var(--green); min-width: 44px; text-align: right; }
 
 /* ── INTENT SCORE ── */
 .intent-grid { display: flex; flex-direction: column; gap: 10px; }
 .int-row { display: flex; align-items: center; gap: 12px; }
-.int-label { font-size: 12px; color: var(--muted); width: 72px; flex-shrink: 0; }
-.int-track { flex: 1; height: 6px; background: var(--b1); border-radius: 3px; overflow: hidden; }
-.int-bar { height: 100%; border-radius: 3px; transition: width 1.4s cubic-bezier(.23,1,.32,1); }
-.int-val { font-size: 12px; font-family: var(--mono); min-width: 28px; text-align: right; }
+.int-label { font-size: 14px; color: var(--muted); width: 88px; flex-shrink: 0; }
+.int-track { flex: 1; height: 8px; background: var(--b1); border-radius: 4px; overflow: hidden; }
+.int-bar { height: 100%; border-radius: 4px; transition: width 1.4s cubic-bezier(.23,1,.32,1); }
+.int-val { font-size: 15px; font-family: var(--mono); min-width: 36px; text-align: right; }
 
 .priority-chip {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border-radius: 8px; margin-top: 14px;
-  font-size: 12px; font-weight: 500;
+  padding: 10px 18px; border-radius: 8px; margin-top: 16px;
+  font-size: 14px; font-weight: 500;
   background: rgba(74,222,128,0.1); color: var(--green);
   border: 1px solid rgba(74,222,128,0.25);
 }
 
 /* ── MESSAGE BOX ── */
-.msg-meta { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--b1); }
+.msg-meta { font-size: 13px; color: var(--muted); font-family: var(--mono); margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--b1); }
 .msg-body {
-  font-size: 13px; line-height: 1.9; color: var(--text);
+  font-size: 15px; line-height: 2.0; color: var(--text);
   white-space: pre-wrap;
-  background: var(--s2); border-radius: 10px; padding: 14px 16px;
+  background: var(--s2); border-radius: 10px; padding: 18px 20px;
   border: 1px solid var(--b1);
 }
 
 /* ── NOTIF ── */
-.notif-box { background: var(--s2); border: 1px solid var(--b1); border-radius: 10px; padding: 12px 16px; font-size: 12px; line-height: 1.9; }
+.notif-box { background: var(--s2); border: 1px solid var(--b1); border-radius: 10px; padding: 16px 20px; font-size: 15px; line-height: 2.1; }
 .notif-row { display: flex; gap: 8px; }
 .notif-key { color: var(--muted); flex-shrink: 0; }
 .notif-val { color: var(--text); font-weight: 500; }
@@ -264,10 +264,10 @@ body::before {
 /* ── FOLLOW UP ── */
 .followup-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--b1); }
 .followup-row:last-child { border: none; padding-bottom: 0; }
-.fu-num { font-size: 11px; font-family: var(--mono); color: var(--accent); background: rgba(91,156,246,0.1); border: 1px solid rgba(91,156,246,0.2); width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.fu-num { font-size: 12px; font-family: var(--mono); color: var(--accent); background: rgba(91,156,246,0.1); border: 1px solid rgba(91,156,246,0.2); width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .fu-body { flex: 1; }
-.fu-title { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
-.fu-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.fu-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+.fu-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
 /* ── SPINNER ── */
 .spin { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--b2); border-top-color: var(--accent); border-radius: 50%; animation: rot 0.55s linear infinite; vertical-align: middle; margin-right: 6px; }
@@ -577,7 +577,7 @@ function renderExtraction(d) {
       <div class="data-grid">
         <div class="data-cell">
           <div class="dc-label">姓名</div>
-          <div class="dc-val" style="font-size:17px;color:var(--accent)">${p.name}</div>
+          <div class="dc-val" style="font-size:22px;color:var(--accent)">${p.name}</div>
         </div>
         <div class="data-cell">
           <div class="dc-label">性別 · 年齡</div>
@@ -586,7 +586,7 @@ function renderExtraction(d) {
         </div>
         <div class="data-cell">
           <div class="dc-label">手機</div>
-          <div class="dc-val" style="font-family:var(--mono);font-size:12px">${p.phone}</div>
+          <div class="dc-val" style="font-family:var(--mono);font-size:16px">${p.phone}</div>
         </div>
         <div class="data-cell">
           <div class="dc-label">所在縣市</div>
@@ -606,7 +606,7 @@ function renderExtraction(d) {
         </div>
         <div class="data-cell full">
           <div class="dc-label">工作模式偏好</div>
-          <div class="dc-val" style="font-size:12px;line-height:1.5">${s.q4_work_style_interest.label_zh}</div>
+          <div class="dc-val" style="font-size:15px;line-height:1.6">${s.q4_work_style_interest.label_zh}</div>
         </div>
         <div class="data-cell full">
           <div class="dc-label">因應策略</div>
@@ -614,15 +614,15 @@ function renderExtraction(d) {
         </div>
         <div class="data-cell">
           <div class="dc-label">期望 AI 技能</div>
-          <div class="dc-val" style="font-size:12px">${s.q6_desired_ai_skill.label_zh}</div>
+          <div class="dc-val" style="font-size:15px">${s.q6_desired_ai_skill.label_zh}</div>
         </div>
         <div class="data-cell">
           <div class="dc-label">收入目標</div>
-          <div class="dc-val">${s.q7_income_goal.label_zh}<span style="font-size:11px;color:var(--muted)">/月</span></div>
+          <div class="dc-val">${s.q7_income_goal.label_zh}<span style="font-size:13px;color:var(--muted)">/月</span></div>
         </div>
       </div>
       <div class="conf-row">
-        <span style="font-size:11px;color:var(--muted);font-family:var(--mono)">辨識信心</span>
+        <span style="font-size:13px;color:var(--muted);font-family:var(--mono)">辨識信心</span>
         <div class="conf-track"><div class="conf-fill" style="width:${conf*100}%"></div></div>
         <div class="conf-label">${Math.round(conf*100)}%</div>
       </div>
@@ -749,12 +749,12 @@ function renderActions(d, email) {
     </div>
     <div class="rc-body">
       <div class="notif-box">
-        <div class="notif-row"><span class="notif-key">姓名</span><span class="notif-val">${p.name}（${p.gender}）</span></div>
-        <div class="notif-row"><span class="notif-key">聯絡</span><span class="notif-val" style="font-family:var(--mono)">${p.phone}</span></div>
-        <div class="notif-row"><span class="notif-key">地區</span><span class="notif-val">${p.current_city}</span></div>
-        <div class="notif-row"><span class="notif-key">興趣</span><span class="notif-val">${s.q2_industry_interests.map(i=>i.label_zh).join('、')}</span></div>
-        <div class="notif-row"><span class="notif-key">目標</span><span class="notif-val">${s.q7_income_goal.label_zh}/月</span></div>
-        <div class="notif-row"><span class="notif-key">評級</span><span class="notif-val" style="color:var(--green)">高優先 ⭐</span></div>
+        <div class="notif-row"><span class="notif-key" style="min-width:52px;display:inline-block">姓名</span><span class="notif-val">${p.name}（${p.gender}）</span></div>
+        <div class="notif-row"><span class="notif-key" style="min-width:52px;display:inline-block">聯絡</span><span class="notif-val" style="font-family:var(--mono)">${p.phone}</span></div>
+        <div class="notif-row"><span class="notif-key" style="min-width:52px;display:inline-block">地區</span><span class="notif-val">${p.current_city}</span></div>
+        <div class="notif-row"><span class="notif-key" style="min-width:52px;display:inline-block">興趣</span><span class="notif-val">${s.q2_industry_interests.map(i=>i.label_zh).join('、')}</span></div>
+        <div class="notif-row"><span class="notif-key" style="min-width:52px;display:inline-block">目標</span><span class="notif-val">${s.q7_income_goal.label_zh}/月</span></div>
+        <div class="notif-row"><span class="notif-key" style="min-width:52px;display:inline-block">評級</span><span class="notif-val" style="color:var(--green)">高優先 ⭐</span></div>
       </div>
     </div>`;
   document.getElementById('rightPanel').appendChild(c3);
