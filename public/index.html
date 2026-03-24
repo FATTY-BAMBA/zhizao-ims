@@ -582,7 +582,7 @@ function renderExtraction(d) {
         <div class="data-cell">
           <div class="dc-label">性別 · 年齡</div>
           <div class="dc-val">${p.gender}</div>
-          <div class="dc-sub">${p.dob_western} 生</div>
+          <div class="dc-sub">${p.dob_roc} 生</div>
         </div>
         <div class="data-cell">
           <div class="dc-label">手機</div>
@@ -638,6 +638,48 @@ function renderActions(d, email) {
 
   const delay = (card, ms) => setTimeout(() => card.classList.add('show'), ms);
 
+  // ── DYNAMIC INTENT SCORING ──
+  // Career change urgency: based on coping strategy mentioning AI/career change
+  const copingText = s.q5_coping_strategies.map(i => i.label_zh).join('');
+  const workStyle = s.q4_work_style_interest.label_zh || '';
+  const incomeGoal = s.q7_income_goal.label_zh || '';
+  const aiSkill = s.q6_desired_ai_skill.label_zh || '';
+  const interests = s.q2_industry_interests.map(i => i.label_zh).join('');
+  const status = s.q1_current_status.label_zh || '';
+
+  // 轉職意願: high if coping = AI/career change, work style = freelance/side income
+  let careerScore = 60;
+  if (copingText.includes('轉換') || copingText.includes('跑道')) careerScore += 20;
+  if (copingText.includes('AI') || copingText.includes('技術')) careerScore += 10;
+  if (workStyle.includes('自媒體') || workStyle.includes('副業') || workStyle.includes('第二份')) careerScore += 10;
+  careerScore = Math.min(careerScore, 99);
+
+  // 數位技能需求: based on AI skill desire + interests
+  let skillScore = 55;
+  if (aiSkill.includes('AI')) skillScore += 15;
+  if (interests.includes('UI') || interests.includes('設計')) skillScore += 10;
+  if (interests.includes('影視') || interests.includes('動漫')) skillScore += 8;
+  if (workStyle.includes('AI') || copingText.includes('AI')) skillScore += 10;
+  skillScore = Math.min(skillScore, 99);
+
+  // 預算適配: based on income goal
+  let budgetScore = 50;
+  if (incomeGoal.includes('百萬')) budgetScore = 95;
+  else if (incomeGoal.includes('6萬') || incomeGoal.includes('8萬')) budgetScore = 82;
+  else if (incomeGoal.includes('4萬') || incomeGoal.includes('6萬')) budgetScore = 72;
+  else if (incomeGoal.includes('3.5') || incomeGoal.includes('4萬')) budgetScore = 60;
+
+  // 急迫程度: employed + never visited + strong coping = urgent
+  let urgencyScore = 55;
+  if (status.includes('在職')) urgencyScore += 15;
+  if (s.q3_visited_before.label_zh.includes('未曾')) urgencyScore += 10;
+  if (copingText.includes('轉換') || copingText.includes('副業')) urgencyScore += 8;
+  urgencyScore = Math.min(urgencyScore, 99);
+
+  const overallHigh = (careerScore + skillScore + budgetScore + urgencyScore) / 4 >= 70;
+  const priorityLabel = overallHigh ? '🔥 高優先潛在學員 — 建議 24 小時內聯繫' : '📋 一般潛在學員 — 建議本週內聯繫';
+  const priorityStyle = overallHigh ? '' : 'background:rgba(251,191,36,0.1);color:var(--amber);border-color:rgba(251,191,36,0.3)';
+
   // Card 1: Intent score
   const c1 = document.createElement('div');
   c1.className = 'result-card';
@@ -651,26 +693,26 @@ function renderActions(d, email) {
       <div class="intent-grid">
         <div class="int-row">
           <div class="int-label">轉職意願</div>
-          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--accent),var(--violet))" data-w="95"></div></div>
-          <div class="int-val" style="color:var(--accent)">95</div>
+          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--accent),var(--violet))" data-w="${careerScore}"></div></div>
+          <div class="int-val" style="color:var(--accent)">${careerScore}</div>
         </div>
         <div class="int-row">
           <div class="int-label">數位技能需求</div>
-          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--violet),#ec4899)" data-w="90"></div></div>
-          <div class="int-val" style="color:var(--violet)">90</div>
+          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--violet),#ec4899)" data-w="${skillScore}"></div></div>
+          <div class="int-val" style="color:var(--violet)">${skillScore}</div>
         </div>
         <div class="int-row">
           <div class="int-label">預算適配</div>
-          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--teal),var(--green))" data-w="72"></div></div>
-          <div class="int-val" style="color:var(--teal)">72</div>
+          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--teal),var(--green))" data-w="${budgetScore}"></div></div>
+          <div class="int-val" style="color:var(--teal)">${budgetScore}</div>
         </div>
         <div class="int-row">
           <div class="int-label">急迫程度</div>
-          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--amber),#f97316)" data-w="88"></div></div>
-          <div class="int-val" style="color:var(--amber)">88</div>
+          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--amber),#f97316)" data-w="${urgencyScore}"></div></div>
+          <div class="int-val" style="color:var(--amber)">${urgencyScore}</div>
         </div>
       </div>
-      <div class="priority-chip">🔥 高優先潛在學員 — 建議 24 小時內聯繫</div>
+      <div class="priority-chip" style="${priorityStyle}">${priorityLabel}</div>
     </div>`;
   document.getElementById('rightPanel').appendChild(c1);
   delay(c1, 100);
