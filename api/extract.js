@@ -1,4 +1,11 @@
-export const config = { maxDuration: 30 };
+export const config = {
+  maxDuration: 30,
+  api: {
+    bodyParser: {
+      sizeLimit: '20mb'
+    }
+  }
+};
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -66,10 +73,15 @@ export default async function handler(req, res) {
         })
       });
 
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error('Anthropic error:', response.status, errText);
+        return res.status(502).json({ error: `Upstream error ${response.status}`, detail: errText });
+      }
       const data = await response.json();
       const raw = data.content?.find(b => b.type === 'text')?.text || '';
       const match = raw.match(/\{[\s\S]*\}/);
-      if (!match) return res.status(422).json({ error: 'Could not parse extraction result' });
+      if (!match) return res.status(422).json({ error: 'Could not parse extraction result', raw });
       return res.status(200).json({ result: JSON.parse(match[0]) });
 
     } else if (mode === 'message') {
@@ -105,6 +117,11 @@ export default async function handler(req, res) {
         })
       });
 
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error('Anthropic error:', response.status, errText);
+        return res.status(502).json({ error: `Upstream error ${response.status}` });
+      }
       const data = await response.json();
       const msg = data.content?.find(b => b.type === 'text')?.text?.trim() || '';
       return res.status(200).json({ message: msg });
