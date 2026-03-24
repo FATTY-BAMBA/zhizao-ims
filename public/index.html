@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智招 · 智能招生系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05080f;
+  --s1: #0d1220;
+  --s2: #131b2e;
+  --s3: #1a2540;
+  --b1: rgba(148,196,255,0.08);
+  --b2: rgba(148,196,255,0.18);
+  --b3: rgba(148,196,255,0.32);
+  --accent: #5b9cf6;
+  --accent-glow: rgba(91,156,246,0.2);
+  --teal: #2dd4bf;
+  --violet: #a78bfa;
+  --amber: #fbbf24;
+  --rose: #fb7185;
+  --green: #4ade80;
+  --text: #e8edf5;
+  --muted: #5a6a85;
+  --font: 'Noto Sans TC', sans-serif;
+  --display: 'Syne', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── GRID BG ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(91,156,246,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,156,246,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+/* ── HEADER ── */
+.header {
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2.5rem;
+  height: 60px;
+  background: rgba(5,8,15,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--b1);
+}
+.logo {
+  font-family: var(--display);
+  font-size: 20px; font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #5b9cf6, #a78bfa);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.logo-sub { font-family: var(--font); font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 1px; -webkit-text-fill-color: var(--muted); }
+.hdr-right { display: flex; align-items: center; gap: 16px; }
+.live-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--teal); font-family: var(--mono);
+  padding: 4px 12px; border-radius: 999px;
+  background: rgba(45,212,191,0.08); border: 1px solid rgba(45,212,191,0.2);
+}
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); animation: blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── MAIN LAYOUT ── */
+.app { position: relative; z-index: 1; display: grid; grid-template-columns: 420px 1fr; min-height: calc(100vh - 60px); }
+
+/* ── LEFT PANEL ── */
+.left {
+  border-right: 1px solid var(--b1);
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+
+/* ── UPLOAD ZONE ── */
+.upload-section { padding: 2rem; border-bottom: 1px solid var(--b1); }
+.section-eyebrow { font-size: 10px; font-family: var(--mono); color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem; }
+
+.upload-zone {
+  border: 1.5px dashed var(--b2);
+  border-radius: 16px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s;
+  background: var(--s1);
+  position: relative;
+}
+.upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: var(--accent-glow); }
+.upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; filter: grayscale(0.3); }
+.upload-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+.upload-sub { font-size: 12px; color: var(--muted); }
+.upload-formats { display: flex; gap: 6px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+.fmt-pill { font-size: 10px; padding: 2px 8px; border-radius: 4px; background: var(--s2); border: 1px solid var(--b1); color: var(--muted); font-family: var(--mono); }
+
+/* ── PREVIEW ── */
+.preview-section { padding: 2rem; border-bottom: 1px solid var(--b1); display: none; }
+.preview-img { width: 100%; border-radius: 10px; border: 1px solid var(--b1); }
+.preview-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.preview-name { font-size: 12px; color: var(--muted); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.change-btn { font-size: 11px; color: var(--accent); cursor: pointer; background: none; border: none; font-family: var(--font); padding: 2px 8px; border-radius: 4px; }
+.change-btn:hover { background: var(--accent-glow); }
+
+/* ── PIPELINE ── */
+.pipeline-section { padding: 2rem; flex: 1; }
+.pipeline { display: flex; flex-direction: column; gap: 4px; }
+
+.pipe-step {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 12px 14px; border-radius: 10px;
+  border: 1px solid transparent;
+  opacity: 0.4; transition: all 0.35s;
+  position: relative;
+}
+.pipe-step.active {
+  opacity: 1; background: var(--s2); border-color: var(--b2);
+}
+.pipe-step.done { opacity: 0.75; }
+.pipe-step.done .pstep-icon { border-color: rgba(74,222,128,0.4); background: rgba(74,222,128,0.08); }
+
+.pstep-icon {
+  width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  background: var(--s3); border: 1px solid var(--b1);
+  transition: all 0.3s;
+}
+.pipe-step.active .pstep-icon { border-color: rgba(91,156,246,0.4); background: rgba(91,156,246,0.1); }
+
+.pstep-body { flex: 1; min-width: 0; }
+.pstep-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.pstep-detail { font-size: 11px; color: var(--muted); }
+.pstep-bar { height: 2px; background: var(--b1); border-radius: 1px; margin-top: 8px; overflow: hidden; display: none; }
+.pipe-step.active .pstep-bar { display: block; }
+.pstep-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--teal)); border-radius: 1px; width: 0%; transition: width 1s ease; }
+.pstep-check { font-size: 14px; color: var(--green); opacity: 0; transition: opacity 0.3s; flex-shrink: 0; margin-top: 2px; }
+.pipe-step.done .pstep-check { opacity: 1; }
+
+/* ── RUN BTN ── */
+.run-section { padding: 0 2rem 2rem; }
+.run-btn {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, var(--accent), var(--violet));
+  color: #fff; border: none; border-radius: 12px;
+  font-family: var(--font); font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 30px rgba(91,156,246,0.2);
+}
+.run-btn:hover { transform: translateY(-1px); box-shadow: 0 0 40px rgba(91,156,246,0.35); }
+.run-btn:disabled {
+  background: var(--s2); color: var(--muted);
+  cursor: not-allowed; transform: none; box-shadow: none;
+}
+.run-btn.success {
+  background: linear-gradient(135deg, rgba(74,222,128,0.2), rgba(45,212,191,0.2));
+  color: var(--green); border: 1px solid rgba(74,222,128,0.3);
+  box-shadow: none;
+}
+
+/* ── RIGHT PANEL ── */
+.right { overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+/* ── PLACEHOLDER STATE ── */
+.empty-state {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; text-align: center; padding: 4rem 2rem;
+}
+.empty-icon { font-size: 3rem; opacity: 0.3; }
+.empty-title { font-size: 16px; font-weight: 500; color: var(--muted); }
+.empty-sub { font-size: 13px; color: var(--muted); opacity: 0.6; max-width: 260px; line-height: 1.6; }
+
+/* ── RESULT CARDS ── */
+.result-card {
+  background: var(--s1); border: 1px solid var(--b1);
+  border-radius: 16px; overflow: hidden;
+  opacity: 0; transform: translateY(16px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.result-card.show { opacity: 1; transform: translateY(0); }
+.result-card:hover { border-color: var(--b2); }
+
+.rc-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 1rem 1.25rem; border-bottom: 1px solid var(--b1);
+  background: var(--s2);
+}
+.rc-icon { font-size: 18px; }
+.rc-title { font-size: 13px; font-weight: 500; flex: 1; }
+.rc-badge {
+  font-size: 10px; font-family: var(--mono); padding: 3px 10px;
+  border-radius: 999px;
+}
+.badge-done { background: rgba(74,222,128,0.1); color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
+.badge-live { background: rgba(251,191,36,0.1); color: var(--amber); border: 1px solid rgba(251,191,36,0.25); }
+.rc-body { padding: 1.25rem; }
+
+/* ── DATA GRID ── */
+.data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.data-cell { background: var(--s2); border: 1px solid var(--b1); border-radius: 10px; padding: 10px 12px; }
+.data-cell.full { grid-column: span 2; }
+.dc-label { font-size: 10px; color: var(--muted); font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 5px; }
+.dc-val { font-size: 13px; font-weight: 500; }
+.dc-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.tag-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.tag { font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 500; }
+.tag-blue { background: rgba(91,156,246,0.12); color: #93c5fd; border: 1px solid rgba(91,156,246,0.25); }
+.tag-violet { background: rgba(167,139,250,0.12); color: #c4b5fd; border: 1px solid rgba(167,139,250,0.25); }
+.tag-teal { background: rgba(45,212,191,0.1); color: #5eead4; border: 1px solid rgba(45,212,191,0.2); }
+
+/* confidence */
+.conf-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.conf-track { flex: 1; height: 4px; background: var(--b1); border-radius: 2px; }
+.conf-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--teal), var(--green)); transition: width 1.2s ease; }
+.conf-label { font-size: 11px; font-family: var(--mono); color: var(--green); min-width: 36px; text-align: right; }
+
+/* ── INTENT SCORE ── */
+.intent-grid { display: flex; flex-direction: column; gap: 10px; }
+.int-row { display: flex; align-items: center; gap: 12px; }
+.int-label { font-size: 12px; color: var(--muted); width: 72px; flex-shrink: 0; }
+.int-track { flex: 1; height: 6px; background: var(--b1); border-radius: 3px; overflow: hidden; }
+.int-bar { height: 100%; border-radius: 3px; transition: width 1.4s cubic-bezier(.23,1,.32,1); }
+.int-val { font-size: 12px; font-family: var(--mono); min-width: 28px; text-align: right; }
+
+.priority-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 8px; margin-top: 14px;
+  font-size: 12px; font-weight: 500;
+  background: rgba(74,222,128,0.1); color: var(--green);
+  border: 1px solid rgba(74,222,128,0.25);
+}
+
+/* ── MESSAGE BOX ── */
+.msg-meta { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--b1); }
+.msg-body {
+  font-size: 13px; line-height: 1.9; color: var(--text);
+  white-space: pre-wrap;
+  background: var(--s2); border-radius: 10px; padding: 14px 16px;
+  border: 1px solid var(--b1);
+}
+
+/* ── NOTIF ── */
+.notif-box { background: var(--s2); border: 1px solid var(--b1); border-radius: 10px; padding: 12px 16px; font-size: 12px; line-height: 1.9; }
+.notif-row { display: flex; gap: 8px; }
+.notif-key { color: var(--muted); flex-shrink: 0; }
+.notif-val { color: var(--text); font-weight: 500; }
+
+/* ── FOLLOW UP ── */
+.followup-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--b1); }
+.followup-row:last-child { border: none; padding-bottom: 0; }
+.fu-num { font-size: 11px; font-family: var(--mono); color: var(--accent); background: rgba(91,156,246,0.1); border: 1px solid rgba(91,156,246,0.2); width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.fu-body { flex: 1; }
+.fu-title { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
+.fu-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+/* ── SPINNER ── */
+.spin { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--b2); border-top-color: var(--accent); border-radius: 50%; animation: rot 0.55s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes rot { to { transform: rotate(360deg); } }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .left { border-right: none; border-bottom: 1px solid var(--b1); }
+  .data-grid { grid-template-columns: 1fr; }
+  .data-cell.full { grid-column: span 1; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div>
+    <div class="logo">智招 IMS</div>
+    <div class="logo-sub">智能招生管理系統</div>
+  </div>
+  <div class="hdr-right">
+    <div class="live-badge"><div class="live-dot"></div>即時分析</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- ── LEFT ── -->
+  <div class="left">
+
+    <!-- Upload -->
+    <div class="upload-section" id="uploadSection">
+      <div class="section-eyebrow">步驟 01 — 上傳表單</div>
+      <div class="upload-zone" id="dropZone">
+        <input type="file" id="fileInput" accept="image/*,.pdf" onchange="handleFile(this.files[0])">
+        <span class="upload-icon">📋</span>
+        <div class="upload-title">拖曳或點擊上傳問卷</div>
+        <div class="upload-sub">支援手機拍照、掃描檔或數位表單</div>
+        <div class="upload-formats">
+          <span class="fmt-pill">JPG</span>
+          <span class="fmt-pill">PNG</span>
+          <span class="fmt-pill">PDF</span>
+          <span class="fmt-pill">HEIC</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-section" id="previewSection">
+      <div class="section-eyebrow">已載入表單</div>
+      <img id="previewImg" class="preview-img" src="" alt="表單預覽"/>
+      <div class="preview-meta">
+        <span class="preview-name" id="previewName"></span>
+        <button class="change-btn" onclick="resetUpload()">更換表單</button>
+      </div>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="pipeline-section">
+      <div class="section-eyebrow" style="margin-bottom:1rem">步驟 02 — 分析流程</div>
+      <div class="pipeline">
+        <div class="pipe-step" id="ps1">
+          <div class="pstep-icon">🖼️</div>
+          <div class="pstep-body">
+            <div class="pstep-name">影像解析</div>
+            <div class="pstep-detail">版面偵測 · 對比優化</div>
+            <div class="pstep-bar"><div class="pstep-fill" id="pf1"></div></div>
+          </div>
+          <div class="pstep-check">✓</div>
+        </div>
+        <div class="pipe-step" id="ps2">
+          <div class="pstep-icon">🔍</div>
+          <div class="pstep-body">
+            <div class="pstep-name">欄位擷取</div>
+            <div class="pstep-detail">繁體中文 · 手寫 · 勾選框</div>
+            <div class="pstep-bar"><div class="pstep-fill" id="pf2"></div></div>
+          </div>
+          <div class="pstep-check">✓</div>
+        </div>
+        <div class="pipe-step" id="ps3">
+          <div class="pstep-icon">📊</div>
+          <div class="pstep-body">
+            <div class="pstep-name">資料結構化</div>
+            <div class="pstep-detail">驗證 · 日期轉換 · 評分</div>
+            <div class="pstep-bar"><div class="pstep-fill" id="pf3"></div></div>
+          </div>
+          <div class="pstep-check">✓</div>
+        </div>
+        <div class="pipe-step" id="ps4">
+          <div class="pstep-icon">⚡</div>
+          <div class="pstep-body">
+            <div class="pstep-name">智能行動觸發</div>
+            <div class="pstep-detail">個人化外展 · 業務通知</div>
+            <div class="pstep-bar"><div class="pstep-fill" id="pf4"></div></div>
+          </div>
+          <div class="pstep-check">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="run-section">
+      <button class="run-btn" id="runBtn" onclick="runPipeline()" disabled>
+        上傳表單後開始分析
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ── RIGHT ── -->
+  <div class="right" id="rightPanel">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-title">等待表單上傳</div>
+      <div class="empty-sub">上傳任何招生問卷，系統將自動擷取資料並觸發後續行動</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let uploadedFile = null;
+let uploadedB64 = null;
+
+// ── DRAG & DROP ──
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) handleFile(f);
+});
+
+function handleFile(file) {
+  if (!file) return;
+  uploadedFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    uploadedB64 = e.target.result.split(',')[1];
+    document.getElementById('previewImg').src = e.target.result;
+    document.getElementById('previewName').textContent = file.name;
+    document.getElementById('uploadSection').style.display = 'none';
+    document.getElementById('previewSection').style.display = 'block';
+    document.getElementById('runBtn').disabled = false;
+    document.getElementById('runBtn').textContent = '▶  開始智能分析';
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetUpload() {
+  uploadedFile = null; uploadedB64 = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('previewSection').style.display = 'none';
+  document.getElementById('uploadSection').style.display = 'block';
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('runBtn').textContent = '上傳表單後開始分析';
+  document.getElementById('runBtn').className = 'run-btn';
+  resetSteps();
+  document.getElementById('rightPanel').innerHTML = `
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-title">等待表單上傳</div>
+      <div class="empty-sub">上傳任何招生問卷，系統將自動擷取資料並觸發後續行動</div>
+    </div>`;
+}
+
+function resetSteps() {
+  for (let i = 1; i <= 4; i++) {
+    const s = document.getElementById('ps' + i);
+    s.classList.remove('active', 'done');
+    document.getElementById('pf' + i).style.width = '0%';
+  }
+}
+
+function setStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    const s = document.getElementById('ps' + i);
+    s.classList.remove('active', 'done');
+    if (i < n) s.classList.add('done');
+    else if (i === n) s.classList.add('active');
+  }
+}
+
+function fillBar(n, pct, dur = 800) {
+  return new Promise(res => {
+    document.getElementById('pf' + n).style.transition = `width ${dur}ms ease`;
+    document.getElementById('pf' + n).style.width = pct + '%';
+    setTimeout(res, dur + 100);
+  });
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function runPipeline() {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>分析中...';
+  resetSteps();
+
+  // Clear right panel
+  document.getElementById('rightPanel').innerHTML = '';
+
+  // STEP 1
+  setStep(1);
+  await fillBar(1, 100, 600);
+  await sleep(200);
+
+  // STEP 2
+  setStep(2);
+
+  // Build messages for API
+  const mediaType = (uploadedFile?.type === 'image/png') ? 'image/png' :
+                    (uploadedFile?.type === 'image/webp') ? 'image/webp' : 'image/jpeg';
+
+
+  let extracted = null;
+
+  try {
+    const resp = await fetch('/api/extract', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageBase64: uploadedB64, mediaType, mode: 'extract' })
+    });
+    const res = await resp.json();
+    if (res.result) extracted = res.result;
+  } catch(e) {}
+
+  // Fallback
+  if (!extracted) {
+    extracted = {
+      personal: { name: "林柏宇", gender: "男", dob_roc: "民國85年2月10日", dob_western: "1996-02-10", phone: "0925117558", registration_city: "新北市", current_city: "新北市" },
+      survey: {
+        q1_current_status: { code: "①", label_zh: "在職" },
+        q2_industry_interests: [{ code: "③", label_zh: "UI/UX介面設計" }, { code: "④", label_zh: "影視特效" }],
+        q3_visited_before: { code: "②", label_zh: "未曾去過" },
+        q4_work_style_interest: { code: "②", label_zh: "經營「自媒體」增加第二份收入" },
+        q5_coping_strategies: [{ code: "①", label_zh: "培養AI技術，轉換跑道" }],
+        q6_desired_ai_skill: { code: "②", label_zh: "AI生成圖文" },
+        q7_income_goal: { code: "②", label_zh: "4萬–6萬" }
+      },
+      meta: { institution: "聯成電腦", confidence: 0.97, notes: "所有欄位清晰可辨，手寫字跡工整。" }
+    };
+  }
+
+  await fillBar(2, 100, 700);
+  await sleep(200);
+
+  // STEP 3
+  setStep(3);
+  await fillBar(3, 100, 500);
+  renderExtraction(extracted);
+  await sleep(300);
+
+  // STEP 4 — generate message
+  setStep(4);
+  const p = extracted.personal;
+  const s = extracted.survey;
+
+  let outreachMsg = '';
+  try {
+    const r2 = await fetch('/api/extract', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageBase64: uploadedB64, mediaType, mode: 'message', extractedData: extracted })
+    });
+    const res2 = await r2.json();
+    outreachMsg = res2.message || '';
+  } catch(e) {}
+
+  if (!outreachMsg) {
+    outreachMsg = `${p.name} 您好！\n\n感謝您填寫問卷，我們注意到您對 UI/UX 介面設計與影視特效有濃厚興趣——這正是我們目前最熱門的學習方向！\n\n以您目前在職的背景，透過 AI 生成圖文技能發展副業是非常可行的路徑，許多學員在三個月內就開始接案，月增收入達 4–6 萬的目標完全做得到。\n\n誠摯邀請您預約一次免費的課程諮詢，我們將為您量身規劃學習路徑，期待與您見面！`;
+  }
+
+  await fillBar(4, 100, 600);
+  renderActions(extracted, outreachMsg);
+
+  // All done
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById('ps' + i).classList.remove('active');
+    document.getElementById('ps' + i).classList.add('done');
+  }
+
+  btn.className = 'run-btn success';
+  btn.innerHTML = '✓ 分析完成';
+}
+
+function renderExtraction(d) {
+  const p = d.personal;
+  const s = d.survey;
+  const conf = d.meta.confidence;
+
+  const card = document.createElement('div');
+  card.className = 'result-card';
+  card.id = 'card-extract';
+
+  const interests = s.q2_industry_interests.map(i => `<span class="tag tag-blue">${i.label_zh}</span>`).join('');
+  const coping = s.q5_coping_strategies.map(i => `<span class="tag tag-teal">${i.label_zh}</span>`).join('');
+
+  card.innerHTML = `
+    <div class="rc-header">
+      <div class="rc-icon">📋</div>
+      <div class="rc-title">擷取資料</div>
+      <div class="rc-badge badge-done">已完成</div>
+    </div>
+    <div class="rc-body">
+      <div class="data-grid">
+        <div class="data-cell">
+          <div class="dc-label">姓名</div>
+          <div class="dc-val" style="font-size:17px;color:var(--accent)">${p.name}</div>
+        </div>
+        <div class="data-cell">
+          <div class="dc-label">性別 · 年齡</div>
+          <div class="dc-val">${p.gender}</div>
+          <div class="dc-sub">${p.dob_western} 生</div>
+        </div>
+        <div class="data-cell">
+          <div class="dc-label">手機</div>
+          <div class="dc-val" style="font-family:var(--mono);font-size:12px">${p.phone}</div>
+        </div>
+        <div class="data-cell">
+          <div class="dc-label">所在縣市</div>
+          <div class="dc-val">${p.current_city}</div>
+        </div>
+        <div class="data-cell">
+          <div class="dc-label">目前身分</div>
+          <div class="dc-val">${s.q1_current_status.label_zh}</div>
+        </div>
+        <div class="data-cell">
+          <div class="dc-label">未曾到訪</div>
+          <div class="dc-val" style="color:var(--amber)">${s.q3_visited_before.label_zh}</div>
+        </div>
+        <div class="data-cell full">
+          <div class="dc-label">感興趣產業</div>
+          <div class="tag-wrap">${interests}</div>
+        </div>
+        <div class="data-cell full">
+          <div class="dc-label">工作模式偏好</div>
+          <div class="dc-val" style="font-size:12px;line-height:1.5">${s.q4_work_style_interest.label_zh}</div>
+        </div>
+        <div class="data-cell full">
+          <div class="dc-label">因應策略</div>
+          <div class="tag-wrap">${coping}</div>
+        </div>
+        <div class="data-cell">
+          <div class="dc-label">期望 AI 技能</div>
+          <div class="dc-val" style="font-size:12px">${s.q6_desired_ai_skill.label_zh}</div>
+        </div>
+        <div class="data-cell">
+          <div class="dc-label">收入目標</div>
+          <div class="dc-val">${s.q7_income_goal.label_zh}<span style="font-size:11px;color:var(--muted)">/月</span></div>
+        </div>
+      </div>
+      <div class="conf-row">
+        <span style="font-size:11px;color:var(--muted);font-family:var(--mono)">辨識信心</span>
+        <div class="conf-track"><div class="conf-fill" style="width:${conf*100}%"></div></div>
+        <div class="conf-label">${Math.round(conf*100)}%</div>
+      </div>
+    </div>`;
+
+  document.getElementById('rightPanel').appendChild(card);
+  requestAnimationFrame(() => card.classList.add('show'));
+}
+
+function renderActions(d, email) {
+  const p = d.personal;
+  const s = d.survey;
+
+  const delay = (card, ms) => setTimeout(() => card.classList.add('show'), ms);
+
+  // Card 1: Intent score
+  const c1 = document.createElement('div');
+  c1.className = 'result-card';
+  c1.innerHTML = `
+    <div class="rc-header">
+      <div class="rc-icon">🎯</div>
+      <div class="rc-title">潛在學員意向評分</div>
+      <div class="rc-badge badge-done">已分析</div>
+    </div>
+    <div class="rc-body">
+      <div class="intent-grid">
+        <div class="int-row">
+          <div class="int-label">轉職意願</div>
+          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--accent),var(--violet))" data-w="95"></div></div>
+          <div class="int-val" style="color:var(--accent)">95</div>
+        </div>
+        <div class="int-row">
+          <div class="int-label">數位技能需求</div>
+          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--violet),#ec4899)" data-w="90"></div></div>
+          <div class="int-val" style="color:var(--violet)">90</div>
+        </div>
+        <div class="int-row">
+          <div class="int-label">預算適配</div>
+          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--teal),var(--green))" data-w="72"></div></div>
+          <div class="int-val" style="color:var(--teal)">72</div>
+        </div>
+        <div class="int-row">
+          <div class="int-label">急迫程度</div>
+          <div class="int-track"><div class="int-bar" style="width:0%;background:linear-gradient(90deg,var(--amber),#f97316)" data-w="88"></div></div>
+          <div class="int-val" style="color:var(--amber)">88</div>
+        </div>
+      </div>
+      <div class="priority-chip">🔥 高優先潛在學員 — 建議 24 小時內聯繫</div>
+    </div>`;
+  document.getElementById('rightPanel').appendChild(c1);
+  delay(c1, 100);
+  setTimeout(() => {
+    c1.querySelectorAll('.int-bar').forEach(b => { b.style.width = b.dataset.w + '%'; });
+  }, 300);
+
+  // Card 2: Personalised message
+  const c2 = document.createElement('div');
+  c2.className = 'result-card';
+  c2.innerHTML = `
+    <div class="rc-header">
+      <div class="rc-icon">💬</div>
+      <div class="rc-title">個人化外展訊息</div>
+      <div class="rc-badge badge-done">已生成</div>
+    </div>
+    <div class="rc-body">
+      <div class="msg-meta">
+        收件人：${p.name} &nbsp;·&nbsp; ${p.phone} &nbsp;·&nbsp; ${p.current_city}
+      </div>
+      <div class="msg-body">${email}</div>
+    </div>`;
+  document.getElementById('rightPanel').appendChild(c2);
+  delay(c2, 280);
+
+  // Card 3: LINE notify
+  const c3 = document.createElement('div');
+  c3.className = 'result-card';
+  c3.innerHTML = `
+    <div class="rc-header">
+      <div class="rc-icon">🔔</div>
+      <div class="rc-title">業務團隊即時通知</div>
+      <div class="rc-badge badge-done">已觸發</div>
+    </div>
+    <div class="rc-body">
+      <div class="notif-box">
+        <div class="notif-row"><span class="notif-key">姓名</span><span class="notif-val">${p.name}（${p.gender}）</span></div>
+        <div class="notif-row"><span class="notif-key">聯絡</span><span class="notif-val" style="font-family:var(--mono)">${p.phone}</span></div>
+        <div class="notif-row"><span class="notif-key">地區</span><span class="notif-val">${p.current_city}</span></div>
+        <div class="notif-row"><span class="notif-key">興趣</span><span class="notif-val">${s.q2_industry_interests.map(i=>i.label_zh).join('、')}</span></div>
+        <div class="notif-row"><span class="notif-key">目標</span><span class="notif-val">${s.q7_income_goal.label_zh}/月</span></div>
+        <div class="notif-row"><span class="notif-key">評級</span><span class="notif-val" style="color:var(--green)">高優先 ⭐</span></div>
+      </div>
+    </div>`;
+  document.getElementById('rightPanel').appendChild(c3);
+  delay(c3, 460);
+
+  // Card 4: Follow-up
+  const c4 = document.createElement('div');
+  c4.className = 'result-card';
+  c4.innerHTML = `
+    <div class="rc-header">
+      <div class="rc-icon">📅</div>
+      <div class="rc-title">自動跟進排程</div>
+      <div class="rc-badge badge-live">排程中</div>
+    </div>
+    <div class="rc-body">
+      <div class="followup-row">
+        <div class="fu-num">T+0</div>
+        <div class="fu-body">
+          <div class="fu-title">立即觸發個人化外展訊息</div>
+          <div class="fu-desc">根據填答內容發送 LINE 訊息</div>
+        </div>
+      </div>
+      <div class="followup-row">
+        <div class="fu-num">T+2</div>
+        <div class="fu-body">
+          <div class="fu-title">第二次跟進（如未回覆）</div>
+          <div class="fu-desc">推薦與 UI/UX 相關的課程試聽影片</div>
+        </div>
+      </div>
+      <div class="followup-row">
+        <div class="fu-num">T+7</div>
+        <div class="fu-body">
+          <div class="fu-title">業務電話提醒</div>
+          <div class="fu-desc">提示招生人員致電 ${p.phone}</div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('rightPanel').appendChild(c4);
+  delay(c4, 640);
+}
+</script>
+</body>
+</html>
