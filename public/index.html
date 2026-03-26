@@ -589,15 +589,19 @@ function renderExtraction(d) {
           <div class="dc-val" style="font-family:var(--mono);font-size:16px">${p.phone}</div>
         </div>
         <div class="data-cell">
-          <div class="dc-label">所在縣市</div>
+          <div class="dc-label">現居縣市</div>
           <div class="dc-val">${p.current_city}</div>
+        </div>
+        <div class="data-cell">
+          <div class="dc-label">戶籍縣市</div>
+          <div class="dc-val">${p.registration_city}</div>
         </div>
         <div class="data-cell">
           <div class="dc-label">目前身分</div>
           <div class="dc-val">${s.q1_current_status.label_zh}</div>
         </div>
         <div class="data-cell">
-          <div class="dc-label">未曾到訪</div>
+          <div class="dc-label">曾到訪聯成</div>
           <div class="dc-val" style="color:var(--amber)">${s.q3_visited_before.label_zh}</div>
         </div>
         <div class="data-cell full">
