@@ -407,13 +407,31 @@ function handleFile(file) {
   uploadedFile = file;
   const reader = new FileReader();
   reader.onload = e => {
-    uploadedB64 = e.target.result.split(',')[1];
-    document.getElementById('previewImg').src = e.target.result;
-    document.getElementById('previewName').textContent = file.name;
-    document.getElementById('uploadSection').style.display = 'none';
-    document.getElementById('previewSection').style.display = 'block';
-    document.getElementById('runBtn').disabled = false;
-    document.getElementById('runBtn').textContent = '▶  開始智能分析';
+    const img = new Image();
+    img.onload = () => {
+      // Preprocess: upscale if small, boost contrast, convert to greyscale
+      const MAX = 1800;
+      let w = img.width, h = img.height;
+      if (Math.max(w, h) < MAX) {
+        const scale = MAX / Math.max(w, h);
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.filter = 'contrast(1.35) brightness(1.05)';
+      ctx.drawImage(img, 0, 0, w, h);
+      const processed = canvas.toDataURL('image/jpeg', 0.92);
+      uploadedB64 = processed.split(',')[1];
+      document.getElementById('previewImg').src = processed;
+      document.getElementById('previewName').textContent = file.name;
+      document.getElementById('uploadSection').style.display = 'none';
+      document.getElementById('previewSection').style.display = 'block';
+      document.getElementById('runBtn').disabled = false;
+      document.getElementById('runBtn').textContent = '▶  開始智能分析';
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -519,6 +537,7 @@ async function runPipeline() {
   // STEP 3
   setStep(3);
   await fillBar(3, 100, 500);
+  _extractedData = extracted;
   renderExtraction(extracted);
   await sleep(300);
 
@@ -634,6 +653,47 @@ function renderExtraction(d) {
 
   document.getElementById('rightPanel').appendChild(card);
   requestAnimationFrame(() => card.classList.add('show'));
+
+  // FIX 3: Show correction UI if low confidence fields exist
+  const lowFields = d.meta?.low_confidence_fields || [];
+  if (lowFields.length > 0 || conf < 0.8) {
+    const warn = document.createElement('div');
+    warn.className = 'result-card show';
+    warn.style.border = '1px solid rgba(251,191,36,0.4)';
+    const fieldLabels = {
+      name: '姓名', phone: '手機號碼', dob_roc: '出生日期',
+      dob_western: '出生日期', registration_city: '戶籍縣市', current_city: '現居縣市'
+    };
+    const fieldRows = lowFields.map(f => {
+      const label = fieldLabels[f] || f;
+      const currentVal = f === 'name' ? p.name : f === 'phone' ? p.phone : f.includes('dob') ? p.dob_roc : p[f] || '';
+      return `<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--b1)">
+        <div style="font-size:13px;color:var(--muted);width:90px;flex-shrink:0">${label}</div>
+        <input type="text" value="${currentVal}" data-field="${f}"
+          style="flex:1;background:var(--s3);border:1px solid rgba(251,191,36,0.4);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;font-family:var(--font)"
+          onchange="updateExtracted('${f}', this.value)"/>
+      </div>`;
+    }).join('');
+    warn.innerHTML = `
+      <div class="rc-header" style="background:rgba(251,191,36,0.08)">
+        <div class="rc-icon">⚠️</div>
+        <div class="rc-title" style="color:var(--amber)">請確認以下欄位</div>
+        <div class="rc-badge" style="background:rgba(251,191,36,0.1);color:var(--amber);border:1px solid rgba(251,191,36,0.3)">辨識信心偏低</div>
+      </div>
+      <div class="rc-body">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px">以下欄位辨識信心低於 80%，請核對原始表單並在必要時修正：</div>
+        ${fieldRows}
+        <div style="font-size:12px;color:var(--muted);margin-top:12px">修正後系統將使用更新的資料生成外展訊息。</div>
+      </div>`;
+    document.getElementById('rightPanel').appendChild(warn);
+  }
+}
+
+let _extractedData = null;
+function updateExtracted(field, value) {
+  if (!_extractedData) return;
+  const fieldMap = { name: 'name', phone: 'phone', dob_roc: 'dob_roc', registration_city: 'registration_city', current_city: 'current_city' };
+  if (fieldMap[field]) _extractedData.personal[fieldMap[field]] = value;
 }
 
 function renderActions(d, email) {
